@@ -71,6 +71,11 @@ create policy "games sind lesbar" on public.games
   for select to anon, authenticated using (true);
 -- players / shots: absichtlich KEINE Policies -> kein direkter Zugriff.
 
+-- Neuere Supabase-Projekte vergeben keine Tabellenrechte mehr automatisch.
+-- games muss lesbar sein, damit Realtime die Änderungen an die Clients schickt.
+grant select on public.games to anon, authenticated;
+revoke all on public.players, public.shots from anon, authenticated;
+
 -- Realtime für games aktivieren (Fehler ignorieren, falls schon drin)
 do $$
 begin
