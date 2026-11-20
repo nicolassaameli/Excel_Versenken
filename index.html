@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mappe1 - Zellen versenken</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%23217346'/%3E%3Cpath d='M6 9h20M6 16h20M6 23h20M13 5v22' stroke='%23fff' stroke-width='2'/%3E%3Ccircle cx='21' cy='20' r='4' fill='%23ff5b5b'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/excel.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- Titelleiste -->
+  <header class="titlebar">
+    <div class="tb-left">
+      <span class="app-icon" aria-hidden="true">
+        <svg viewBox="0 0 32 32"><rect width="32" height="32" rx="5" fill="#fff"/><path d="M6 9h20M6 16h20M6 23h20M13 5v22" stroke="#217346" stroke-width="2.4"/><circle cx="21" cy="20" r="4" fill="#e04040"/></svg>
+      </span>
+      <span class="autosave">Automatisches Speichern <span class="toggle on"><i></i></span></span>
+      <button class="qa" title="Speichern" data-deco="Speichern"><svg viewBox="0 0 16 16"><path d="M2 2h9l3 3v9H2z M5 2v4h6V2 M4 14v-5h8v5" fill="none" stroke="currentColor"/></svg></button>
+      <button class="qa" title="Rückgängig" data-deco="Rückgängig"><svg viewBox="0 0 16 16"><path d="M5 4L2 7l3 3M2 7h8a4 4 0 010 8H7" fill="none" stroke="currentColor"/></svg></button>
+      <button class="qa" title="Wiederholen" data-deco="Wiederholen"><svg viewBox="0 0 16 16"><path d="M11 4l3 3-3 3M14 7H6a4 4 0 000 8h3" fill="none" stroke="currentColor"/></svg></button>
+    </div>
+    <div class="tb-center"><span id="docTitle">Mappe1</span> <span class="saved">– Gespeichert</span></div>
+    <div class="tb-search"><svg viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor"/><path d="M10.5 10.5L14 14" stroke="currentColor"/></svg><span>Suchen (Alt+M)</span></div>
+    <div class="tb-right">
+      <span class="avatar" id="avatar" title="Spieler">?</span>
+      <span class="win-btn">&#8212;</span><span class="win-btn">&#9744;</span><span class="win-btn close">&#10005;</span>
+    </div>
+  </header>
+
+  <!-- Menüband -->
+  <nav class="ribbon-tabs" id="ribbonTabs"></nav>
+  <section class="ribbon" id="ribbon"></section>
+
+  <!-- Bearbeitungsleiste -->
+  <div class="formulabar">
+    <input id="nameBox" class="namebox" spellcheck="false" autocomplete="off" value="A1">
+    <span class="fb-dots">&#8942;</span>
+    <button class="fb-btn" id="fbCancel" title="Abbrechen">&#10005;</button>
+    <button class="fb-btn" id="fbOk" title="Eingeben">&#10003;</button>
+    <span class="fb-fx" title="Funktion einfügen">𝑓x</span>
+    <input id="formulaInput" class="formula" spellcheck="false" autocomplete="off" placeholder="Formel eingeben, z. B. =FEUER(Q8)">
+    <div id="fxPopup" class="fx-popup" hidden></div>
+  </div>
+
+  <!-- Tabellenblatt -->
+  <main class="sheet-area">
+    <div class="sheet-scroll" id="sheetScroll">
+      <div class="sheet-zoom" id="sheetZoom">
+        <table id="grid" class="grid"></table>
+        <div id="selBox" class="sel-box"><i class="fill-handle"></i></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Blattregister -->
+  <div class="sheet-tabs">
+    <span class="st-nav">&#9664;</span><span class="st-nav">&#9654;</span>
+    <div id="sheetTabs" class="st-list"></div>
+    <span class="st-add" data-deco="Neues Blatt" title="Neues Blatt">+</span>
+    <div class="st-hscroll"><i></i></div>
+  </div>
+
+  <!-- Statusleiste -->
+  <footer class="statusbar">
+    <span id="sbMode">Bereit</span>
+    <span id="sbMsg" class="sb-msg"></span>
+    <span class="sb-spacer"></span>
+    <span id="sbAgg" class="sb-agg"></span>
+    <span class="sb-view" title="Normal">&#9638;</span>
+    <span class="sb-view" title="Seitenlayout">&#9636;</span>
+    <span class="sb-view" title="Umbruchvorschau">&#9641;</span>
+    <button class="sb-zoom" id="zoomOut">&#8722;</button>
+    <input type="range" id="zoomRange" min="50" max="200" step="10" value="100">
+    <button class="sb-zoom" id="zoomIn">+</button>
+    <span id="zoomLabel" class="sb-zoomlabel">100 %</span>
+  </footer>
+</div>
+
+<!-- Backstage (Datei-Menü) -->
+<div id="backstage" class="backstage" hidden>
+  <aside class="bs-nav">
+    <button class="bs-back" id="bsBack" title="Zurück">&#8592;</button>
+    <button class="bs-item active" data-page="start"><span>&#8962;</span> Start</button>
+    <button class="bs-item" data-page="neu"><span>&#128462;</span> Neu</button>
+    <button class="bs-item" data-page="oeffnen"><span>&#128449;</span> Öffnen</button>
+    <hr>
+    <button class="bs-item" data-page="info"><span>&#9432;</span> Info</button>
+    <div class="bs-bottom">
+      <button class="bs-item" data-page="info">Konto</button>
+      <button class="bs-item" data-page="info">Optionen</button>
+    </div>
+  </aside>
+  <div class="bs-main">
+    <!-- Start -->
+    <section class="bs-page" data-page="start">
+      <h1 id="bsGreeting">Guten Tag</h1>
+      <div class="bs-name">
+        <label for="playerName">Dein Name</label>
+        <input id="playerName" maxlength="24" placeholder="Name eingeben" autocomplete="nickname">
+      </div>
+      <h2>Neu</h2>
+      <div class="bs-templates">
+        <button class="tpl" data-action="new-online">
+          <div class="tpl-thumb online"></div>
+          <span>Neues Online-Spiel</span>
+        </button>
+        <button class="tpl" data-action="new-local">
+          <div class="tpl-thumb local"></div>
+          <span>Gegen den Computer</span>
+        </button>
+        <button class="tpl" data-action="goto-open">
+          <div class="tpl-thumb join"></div>
+          <span>Spiel beitreten</span>
+        </button>
+      </div>
+      <p id="bsOfflineHint" class="bs-hint" hidden>
+        Online-Modus nicht konfiguriert: Trage in <code>js/config.js</code> deine Supabase-URL und den
+        anon-Key ein. Gegen den Computer kannst du trotzdem spielen.
+      </p>
+      <h2>Zuletzt verwendet</h2>
+      <div id="recentList" class="recent"></div>
+    </section>
+
+    <!-- Neu -->
+    <section class="bs-page" data-page="neu" hidden>
+      <h1>Neu</h1>
+      <div class="bs-templates">
+        <button class="tpl" data-action="new-online"><div class="tpl-thumb online"></div><span>Neues Online-Spiel</span></button>
+        <button class="tpl" data-action="new-local"><div class="tpl-thumb local"></div><span>Gegen den Computer</span></button>
+      </div>
+    </section>
+
+    <!-- Öffnen -->
+    <section class="bs-page" data-page="oeffnen" hidden>
+      <h1>Öffnen</h1>
+      <p>Gib den Spiel-Code ein, den du von deinem Gegner erhalten hast.</p>
+      <div class="bs-join">
+        <input id="joinCode" maxlength="5" placeholder="z. B. K7QX2" autocomplete="off" spellcheck="false">
+        <button class="btn primary" data-action="join">Beitreten</button>
+      </div>
+      <h2>Zuletzt verwendet</h2>
+      <div id="recentList2" class="recent"></div>
+    </section>
+
+    <!-- Info -->
+    <section class="bs-page" data-page="info" hidden>
+      <h1>Info</h1>
+      <p><b>Zellen versenken</b> – Schiffe versenken im Gewand einer Tabellenkalkulation.</p>
+      <p>Zwei Spieler, je ein 10×10-Feld, fünf Schiffe. Wer trifft, darf nochmals schiessen.
+         Wer zuerst alle gegnerischen Schiffe versenkt, gewinnt.</p>
+      <p class="muted">Kein Produkt von Microsoft. Nur zum Spass.</p>
+    </section>
+  </div>
+</div>
+
+<div id="dialogLayer"></div>
+<div id="toast" class="toast" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/core.js"></script>
+<script src="js/formulas.js"></script>
+<script src="js/backends.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
